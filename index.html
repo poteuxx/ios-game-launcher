@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iOS Game Launcher</title>
+
+<!-- PWA Manifest inline -->
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22iOS%20Game%20Launcher%22%2C%22short_name%22%3A%22GameLauncher%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231e1e2f%22%2C%22theme_color%22%3A%22%234caf50%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image/png%22%7D%5D%7D">
+
+<style>
+  body { margin:0; font-family: "Segoe UI", sans-serif; background:#1e1e2f; color:white; }
+  header { padding:20px; text-align:center; background:#27293d; }
+  main { display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:15px; padding:20px; }
+  .game-card { background:#3a3f58; padding:20px; text-align:center; border-radius:12px; cursor:pointer; transition:0.2s; }
+  .game-card:hover { background:#4caf50; }
+  .game-card img { width:60px; height:60px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎮 Game Launcher</h1>
+</header>
+
+<main id="gameGrid"></main>
+
+<script>
+  // List of games: name, URL scheme, base64 icon (small placeholder)
+  const games = [
+    { name:"Clash Royale", scheme:"clashroyale://", icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA..." },
+    { name:"PUBG Mobile", scheme:"pubgmobile://", icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA..." },
+    { name:"Minecraft", scheme:"minecraft://", icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA..." }
+  ];
+
+  const grid = document.getElementById("gameGrid");
+
+  games.forEach(game => {
+    const card = document.createElement("div");
+    card.className = "game-card";
+    card.innerHTML = `<img src="${game.icon}" alt="${game.name}"><br>${game.name}`;
+    card.addEventListener("click", () => { window.location.href = game.scheme; });
+    grid.appendChild(card);
+  });
+</script>
+
+</body>
+</html>
