@@ -5,43 +5,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>iOS Game Launcher</title>
 
-<!-- PWA Manifest inline -->
-<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22iOS%20Game%20Launcher%22%2C%22short_name%22%3A%22GameLauncher%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231e1e2f%22%2C%22theme_color%22%3A%22%234caf50%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image/png%22%7D%5D%7D">
-
 <style>
-  body { margin:0; font-family: "Segoe UI", sans-serif; background:#1e1e2f; color:white; }
-  header { padding:20px; text-align:center; background:#27293d; }
-  main { display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:15px; padding:20px; }
-  .game-card { background:#3a3f58; padding:20px; text-align:center; border-radius:12px; cursor:pointer; transition:0.2s; }
-  .game-card:hover { background:#4caf50; }
-  .game-card img { width:60px; height:60px; }
+  body { margin:0; font-family: "Segoe UI", sans-serif; background:#111; color:#fff; }
+  header { text-align:center; padding:20px; background:#222; }
+  main { display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:15px; padding:20px; }
+  .game { background:#2a2a2a; border-radius:10px; text-align:center; cursor:pointer; padding:15px; }
+  .game img { width:60px; height:60px; margin-bottom:8px; }
+  .game:hover { background:#444; }
 </style>
+
 </head>
 <body>
 
-<header>
-  <h1>🎮 Game Launcher</h1>
-</header>
-
-<main id="gameGrid"></main>
+<header><h1>🎮 My Game Hub</h1></header>
+<main id="grid"></main>
 
 <script>
-  // List of games: name, URL scheme, base64 icon (small placeholder)
-  const games = [
-    { name:"Clash Royale", scheme:"clashroyale://", icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA..." },
-    { name:"PUBG Mobile", scheme:"pubgmobile://", icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA..." },
-    { name:"Minecraft", scheme:"minecraft://", icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA..." }
-  ];
+// Games list: name, optional URL scheme, App Store link
+const games = [
+  { name: "Clash Royale", scheme: "clashroyale://", store: "https://apps.apple.com/app/id1053012308" },
+  { name: "Clash of Clans", scheme: "clashofclans://", store: "https://apps.apple.com/app/id529479190" },
+  { name: "Brawl Stars", scheme: "brawlstars://", store: "https://apps.apple.com/app/id1229016807" },
+  { name: "Pokémon GO", scheme: "", store: "https://apps.apple.com/app/id1094591345" },
+  { name: "Geometry Dash", scheme: "", store: "https://apps.apple.com/app/id626558244" },
+  { name: "Pixel Gun 3D", scheme: "", store: "https://apps.apple.com/app/id1012693656" },
+  { name: "Subway Surfers", scheme: "", store: "https://apps.apple.com/app/id512939461" },
+  { name: "RAID: Shadow Legends", scheme: "", store: "https://apps.apple.com/app/id1293450186" },
+  { name: "Worms 2: Armageddon", scheme: "", store: "https://apps.apple.com/app/id359458322" },
+  { name: "Tomb of the Mask", scheme: "", store: "https://apps.apple.com/app/id1095086792" }
+];
 
-  const grid = document.getElementById("gameGrid");
+// Placeholder icons from App Store thumbnail service (replace with real URLs if you like)
+const iconMap = {
+  "Clash Royale": "https://is2-ssl.mzstatic.com/image/thumb/Purple114/v4/f3/2f/12/f32f12f4-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "Clash of Clans": "https://is2-ssl.mzstatic.com/image/thumb/Purple114/v4/d3/15/07/d31507ce-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "Brawl Stars": "https://is5-ssl.mzstatic.com/image/thumb/Purple124/v4/ab/12/45/ab1245cd-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "Pokémon GO": "https://is4-ssl.mzstatic.com/image/thumb/Purple114/v4/f9/72/33/f97233xx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "Geometry Dash": "https://is3-ssl.mzstatic.com/image/thumb/Purple114/v4/9c/52/cc/9c52ccxx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "Pixel Gun 3D": "https://is1-ssl.mzstatic.com/image/thumb/Purple114/v4/68/77/bc/6877bcxx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "Subway Surfers": "https://is5-ssl.mzstatic.com/image/thumb/Purple114/v4/3e/e3/f9/3ee3f94x-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "RAID: Shadow Legends": "https://is2-ssl.mzstatic.com/image/thumb/Purple124/v4/d2/34/c1/d234c1xx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "Worms 2: Armageddon": "https://is1-ssl.mzstatic.com/image/thumb/Purple114/v4/67/39/20/673920xx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
+  "Tomb of the Mask": "https://is4-ssl.mzstatic.com/image/thumb/Purple124/v4/b8/22/11/b82211xx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png"
+};
 
-  games.forEach(game => {
-    const card = document.createElement("div");
-    card.className = "game-card";
-    card.innerHTML = `<img src="${game.icon}" alt="${game.name}"><br>${game.name}`;
-    card.addEventListener("click", () => { window.location.href = game.scheme; });
-    grid.appendChild(card);
-  });
+const grid = document.getElementById("grid");
+
+games.forEach(g => {
+  const div = document.createElement("div");
+  div.className = "game";
+  div.innerHTML = `<img src="${iconMap[g.name]}" alt="${g.name}"><div>${g.name}</div>`;
+  div.onclick = () => {
+    if(g.scheme){
+      window.location = g.scheme;
+      setTimeout(() => { window.location = g.store; }, 500);
+    } else {
+      window.location = g.store;
+    }
+  };
+  grid.appendChild(div);
+});
 </script>
 
 </body>
