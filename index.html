@@ -3,28 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iOS Game Launcher</title>
+<title>Next-Gen Game Launcher</title>
 <style>
-  body { margin:0; font-family: "Segoe UI", sans-serif; background:#111; color:#fff; }
-  header { text-align:center; padding:20px; background:#222; }
-  main { display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:15px; padding:20px; }
-  .game { background:#2a2a2a; border-radius:10px; text-align:center; cursor:pointer; padding:15px; }
-  .game img { width:60px; height:60px; margin-bottom:8px; }
-  .game:hover { background:#444; }
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto:wght@400;700&display=swap');
+
+  html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font-family: 'Roboto', sans-serif; background:#0e0e0e; color:white; }
+  canvas#particles { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
+
+  header { position:relative; z-index:1; text-align:center; padding:20px; }
+  header h1 { font-family: 'Orbitron', sans-serif; font-size:2.5rem; background: linear-gradient(90deg,#4caf50,#00e5ff,#ff3cac); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientShift 6s infinite linear; }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  main { position:relative; z-index:1; display:grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap:20px; padding:20px; }
+
+  .game {
+    background: linear-gradient(145deg,#1c1c1c,#2a2a2a);
+    border-radius:20px;
+    text-align:center;
+    cursor:pointer;
+    padding:15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    perspective: 1000px;
+  }
+
+  .game img { width:70px; height:70px; margin-bottom:10px; border-radius:15px; transition: all 0.4s ease; }
+  .game div { font-weight:bold; font-size:1rem; color:#fff; transition: all 0.3s ease; text-shadow: 0 0 5px #00e5ff; }
+
+  .game:hover { transform: rotateX(10deg) rotateY(10deg) scale(1.08); box-shadow: 0 12px 30px rgba(0,255,255,0.5); background: linear-gradient(145deg,#4caf50,#00e5ff); }
+
 </style>
 </head>
 <body>
 
-<header><h1>🎮 Game Launcher</h1></header>
+<canvas id="particles"></canvas>
+<header><h1>🚀 Next-Gen Game Launcher</h1></header>
 <main id="grid"></main>
 
 <script>
-// Games with launch scheme (if known) + store fallback
+// ===== Games =====
 const games = [
   { name: "Clash Royale", scheme:"clashroyale://", store:"https://apps.apple.com/app/id1053012308", icon:"https://www.kindpng.com/picc/m/33-337880_clash-royale-icons-png-transparent-png.png" },
   { name: "Clash of Clans", scheme:"clashofclans://", store:"https://apps.apple.com/app/id529479190", icon:"https://www.pngplay.com/wp-content/uploads/13/Clash-Of-Clans-Logo-PNG-Image-HD.png" },
+  { name: "Call of Duty Mobile", scheme:"codm://", store:"https://apps.apple.com/app/id1117132598", icon:"https://iconduck.com/images/244276/cod-mobile-icon.png" },
   { name: "Brawl Stars", scheme:"brawlstars://", store:"https://apps.apple.com/app/id1229016807", icon:"https://img.icons8.com/color/96/000000/brawl-stars.png" },
-  { name:"Call of Duty Mobile", scheme:"codm://", store:"https://apps.apple.com/app/id1117132598", icon:"https://iconduck.com/images/244276/cod-mobile-icon.png" },
   { name: "Pokémon GO", scheme:"", store:"https://apps.apple.com/app/id1094591345", icon:"https://img.icons8.com/color/96/000000/pokemon-go.png" },
   { name: "Geometry Dash", scheme:"", store:"https://apps.apple.com/app/id626558244", icon:"https://img.icons8.com/color/96/000000/geometry-dash.png" },
   { name: "Pixel Gun 3D", scheme:"", store:"https://apps.apple.com/app/id640111933", icon:"https://upload.wikimedia.org/wikipedia/commons/7/73/Pixel_Gun_3D_Logo.png" },
@@ -33,22 +60,68 @@ const games = [
   { name: "Tomb of the Mask", scheme:"", store:"https://apps.apple.com/app/id1095086792", icon:"https://img.icons8.com/color/96/000000/tomb-of-the-mask.png" }
 ];
 
+// ===== Generate Grid =====
 const grid = document.getElementById("grid");
-
 games.forEach(g => {
   const div = document.createElement("div");
-  div.className = "game";
-  div.innerHTML = `<img src="${g.icon}" alt="${g.name}"><div>${g.name}</div>`;
-  div.onclick = () => {
+  div.className="game";
+  div.innerHTML=`<img src="${g.icon}" alt="${g.name}"><div>${g.name}</div>`;
+  div.onclick=()=>{
     if(g.scheme){
-      window.location = g.scheme;
-      setTimeout(() => { window.location = g.store; }, 500);
+      window.location=g.scheme;
+      setTimeout(()=>window.location=g.store,500);
     } else {
-      window.location = g.store;
+      window.location=g.store;
     }
   };
   grid.appendChild(div);
 });
+
+// ===== Particles =====
+const canvas=document.getElementById("particles");
+const ctx=canvas.getContext("2d");
+let particlesArray=[];
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+class Particle{
+  constructor(){
+    this.x=Math.random()*canvas.width;
+    this.y=Math.random()*canvas.height;
+    this.size=Math.random()*3+1;
+    this.speedX=(Math.random()-0.5)*1.5;
+    this.speedY=(Math.random()-0.5)*1.5;
+    this.color=`rgba(0,255,255,${Math.random()})`;
+  }
+  update(){
+    this.x+=this.speedX; this.y+=this.speedY;
+    if(this.x<0||this.x>canvas.width) this.speedX*=-1;
+    if(this.y<0||this.y>canvas.height) this.speedY*=-1;
+  }
+  draw(){
+    ctx.fillStyle=this.color;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function init(){ particlesArray=[]; for(let i=0;i<150;i++) particlesArray.push(new Particle()); }
+init();
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particlesArray.forEach(p=>{p.update();p.draw();});
+  requestAnimationFrame(animate);
+}
+animate();
+
+window.addEventListener('resize',()=>{
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+  init();
+});
+
 </script>
 
 </body>
