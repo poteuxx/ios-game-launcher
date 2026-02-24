@@ -5,38 +5,113 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Next-Gen Game Launcher</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto:wght@400;700&display=swap');
 
-  html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font-family: 'Roboto', sans-serif; background:#0e0e0e; color:white; }
-  canvas#particles { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
+/* Base */
+html, body {
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100vh;  /* allow scrolling */
+  font-family:'Roboto', sans-serif;
+  background:#0e0e0e;
+  color:white;
+  overflow-y: auto;  /* enable scroll */
+  position: relative;
+}
 
-  header { position:relative; z-index:1; text-align:center; padding:20px; }
-  header h1 { font-family: 'Orbitron', sans-serif; font-size:2.5rem; background: linear-gradient(90deg,#4caf50,#00e5ff,#ff3cac); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientShift 6s infinite linear; }
+/* Particles background */
+canvas#particles {
+  position: fixed; 
+  top:0; left:0; 
+  width:100%; 
+  height:100%; 
+  z-index:0;
+}
 
-  @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+/* Header */
+header {
+  position: relative; 
+  z-index: 1; 
+  text-align:center; 
+  padding:20px;
+}
+header h1 {
+  font-family:'Orbitron', sans-serif; 
+  font-size:2.5rem; 
+  background: linear-gradient(90deg,#4caf50,#00e5ff,#ff3cac); 
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent; 
+  animation: gradientShift 6s infinite linear;
+}
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-  main { position:relative; z-index:1; display:grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap:20px; padding:20px; }
+/* Main grid */
+main {
+  position: relative; 
+  z-index:1; 
+  display:grid; 
+  grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); 
+  gap:20px; 
+  padding:20px; 
+}
 
-  .game {
-    background: linear-gradient(145deg,#1c1c1c,#2a2a2a);
-    border-radius:20px;
-    text-align:center;
-    cursor:pointer;
-    padding:15px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.7);
-    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    perspective: 1000px;
-  }
+/* Game card */
+.game {
+  background: linear-gradient(145deg,#1c1c1c,#2a2a2a);
+  border-radius:20px;
+  text-align:center;
+  cursor:pointer;
+  padding:15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  perspective: 1000px;
+  overflow:hidden;
+  position:relative;
+}
+.game img {
+  width:70px;
+  height:70px;
+  margin-bottom:10px;
+  border-radius:15px;
+  transition: all 0.4s ease;
+}
+.game div {
+  font-weight:bold;
+  font-size:1rem;
+  color:#fff;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 5px #00e5ff;
+}
 
-  .game img { width:70px; height:70px; margin-bottom:10px; border-radius:15px; transition: all 0.4s ease; }
-  .game div { font-weight:bold; font-size:1rem; color:#fff; transition: all 0.3s ease; text-shadow: 0 0 5px #00e5ff; }
+/* Hover / 3D effect */
+.game:hover {
+  transform: rotateX(10deg) rotateY(10deg) scale(1.08);
+  box-shadow: 0 12px 30px rgba(0,255,255,0.5);
+  background: linear-gradient(145deg,#4caf50,#00e5ff);
+}
 
-  .game:hover { transform: rotateX(10deg) rotateY(10deg) scale(1.08); box-shadow: 0 12px 30px rgba(0,255,255,0.5); background: linear-gradient(145deg,#4caf50,#00e5ff); }
-
+/* Ripple effect */
+.game:after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  width: 100px; height: 100px;
+  transform: scale(0);
+  opacity: 0.5;
+  pointer-events: none;
+  background: rgba(0,255,255,0.4);
+  transition: transform 0.5s, opacity 1s;
+}
+.game.ripple:after {
+  transform: scale(4);
+  opacity: 0;
+  transition: transform 0.5s, opacity 1s;
+}
 </style>
 </head>
 <body>
@@ -67,6 +142,8 @@ games.forEach(g => {
   div.className="game";
   div.innerHTML=`<img src="${g.icon}" alt="${g.name}"><div>${g.name}</div>`;
   div.onclick=()=>{
+    div.classList.add("ripple");
+    setTimeout(()=>div.classList.remove("ripple"),500);
     if(g.scheme){
       window.location=g.scheme;
       setTimeout(()=>window.location=g.store,500);
@@ -121,7 +198,6 @@ window.addEventListener('resize',()=>{
   canvas.height=window.innerHeight;
   init();
 });
-
 </script>
 
 </body>
