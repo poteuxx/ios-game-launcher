@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>iOS Game Launcher</title>
-
 <style>
   body { margin:0; font-family: "Segoe UI", sans-serif; background:#111; color:#fff; }
   header { text-align:center; padding:20px; background:#222; }
@@ -13,48 +12,32 @@
   .game img { width:60px; height:60px; margin-bottom:8px; }
   .game:hover { background:#444; }
 </style>
-
 </head>
 <body>
 
-<header><h1>🎮 My Game Hub</h1></header>
+<header><h1>🎮 Game Launcher</h1></header>
 <main id="grid"></main>
 
 <script>
-// Games list: name, optional URL scheme, App Store link
+// Games with launch scheme (if known) + store fallback
 const games = [
-  { name: "Clash Royale", scheme: "clashroyale://", store: "https://apps.apple.com/app/id1053012308" },
-  { name: "Clash of Clans", scheme: "clashofclans://", store: "https://apps.apple.com/app/id529479190" },
-  { name: "Brawl Stars", scheme: "brawlstars://", store: "https://apps.apple.com/app/id1229016807" },
-  { name: "Pokémon GO", scheme: "", store: "https://apps.apple.com/app/id1094591345" },
-  { name: "Geometry Dash", scheme: "", store: "https://apps.apple.com/app/id626558244" },
-  { name: "Pixel Gun 3D", scheme: "", store: "https://apps.apple.com/app/id1012693656" },
-  { name: "Subway Surfers", scheme: "", store: "https://apps.apple.com/app/id512939461" },
-  { name: "RAID: Shadow Legends", scheme: "", store: "https://apps.apple.com/app/id1293450186" },
-  { name: "Worms 2: Armageddon", scheme: "", store: "https://apps.apple.com/app/id359458322" },
-  { name: "Tomb of the Mask", scheme: "", store: "https://apps.apple.com/app/id1095086792" }
+  { name: "Clash Royale", scheme:"clashroyale://", store:"https://apps.apple.com/app/id1053012308", icon:"https://www.stickpng.com/assets/images/580b57fcd9996e24bc43c4fc.png" },
+  { name: "Clash of Clans", scheme:"clashofclans://", store:"https://apps.apple.com/app/id529479190", icon:"https://img.icons8.com/color/96/000000/clash-of-clans.png" },
+  { name: "Brawl Stars", scheme:"brawlstars://", store:"https://apps.apple.com/app/id1229016807", icon:"https://img.icons8.com/color/96/000000/brawl-stars.png" },
+  { name: "Pokémon GO", scheme:"", store:"https://apps.apple.com/app/id1094591345", icon:"https://img.icons8.com/color/96/000000/pokemon-go.png" },
+  { name: "Geometry Dash", scheme:"", store:"https://apps.apple.com/app/id626558244", icon:"https://img.icons8.com/color/96/000000/geometry-dash.png" },
+  { name: "Pixel Gun 3D", scheme:"", store:"https://apps.apple.com/app/id640111933", icon:"https://img.icons8.com/color/96/000000/pixel-gun-3d.png" },
+  { name: "Subway Surfers", scheme:"", store:"https://apps.apple.com/app/id512939461", icon:"https://www.stickpng.com/img/games/subway-surfers/subway-surfers-icon" },
+  { name: "RAID: Shadow Legends", scheme:"", store:"https://apps.apple.com/app/id1293450186", icon:"https://img.icons8.com/color/96/000000/raid-shadow-legends.png" },
+  { name: "Tomb of the Mask", scheme:"", store:"https://apps.apple.com/app/id1095086792", icon:"https://img.icons8.com/color/96/000000/tomb-of-the-mask.png" }
 ];
-
-// Placeholder icons from App Store thumbnail service (replace with real URLs if you like)
-const iconMap = {
-  "Clash Royale": "https://is2-ssl.mzstatic.com/image/thumb/Purple114/v4/f3/2f/12/f32f12f4-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "Clash of Clans": "https://is2-ssl.mzstatic.com/image/thumb/Purple114/v4/d3/15/07/d31507ce-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "Brawl Stars": "https://is5-ssl.mzstatic.com/image/thumb/Purple124/v4/ab/12/45/ab1245cd-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "Pokémon GO": "https://is4-ssl.mzstatic.com/image/thumb/Purple114/v4/f9/72/33/f97233xx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "Geometry Dash": "https://is3-ssl.mzstatic.com/image/thumb/Purple114/v4/9c/52/cc/9c52ccxx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "Pixel Gun 3D": "https://is1-ssl.mzstatic.com/image/thumb/Purple114/v4/68/77/bc/6877bcxx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "Subway Surfers": "https://is5-ssl.mzstatic.com/image/thumb/Purple114/v4/3e/e3/f9/3ee3f94x-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "RAID: Shadow Legends": "https://is2-ssl.mzstatic.com/image/thumb/Purple124/v4/d2/34/c1/d234c1xx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "Worms 2: Armageddon": "https://is1-ssl.mzstatic.com/image/thumb/Purple114/v4/67/39/20/673920xx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png",
-  "Tomb of the Mask": "https://is4-ssl.mzstatic.com/image/thumb/Purple124/v4/b8/22/11/b82211xx-xxxx-xxxx-xxxx-xxxxxxxxxx/Icon-0-1x_U007emarketing-0-85-220-0-5.png"
-};
 
 const grid = document.getElementById("grid");
 
 games.forEach(g => {
   const div = document.createElement("div");
   div.className = "game";
-  div.innerHTML = `<img src="${iconMap[g.name]}" alt="${g.name}"><div>${g.name}</div>`;
+  div.innerHTML = `<img src="${g.icon}" alt="${g.name}"><div>${g.name}</div>`;
   div.onclick = () => {
     if(g.scheme){
       window.location = g.scheme;
